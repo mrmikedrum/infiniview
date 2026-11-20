@@ -123,6 +123,20 @@ let languages = try! LanguageIndex(json: Data(contentsOf: assets.appendingPathCo
         #expect(controller.view.textView.frame.width > 100)
     }
 
+    @MainActor @Test func narrowPreviewUsesSmallerText() throws {
+        let controller = try PreviewController(assets: assets)
+        let file = corpus.appendingPathComponent("tool")
+        func bodySize() -> CGFloat? {
+            (controller.view.textView.textStorage?.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)?.pointSize
+        }
+        controller.view.setFrameSize(NSSize(width: 900, height: 600))
+        try controller.load(file)
+        #expect(!controller.view.isCompact && bodySize() == 12)
+        controller.view.setFrameSize(NSSize(width: 400, height: 600))
+        try controller.load(file)
+        #expect(controller.view.isCompact && bodySize() == 9)
+    }
+
     @MainActor @Test func binaryShowsTheCard() throws {
         let controller = try PreviewController(assets: assets)
         try controller.load(corpus.appendingPathComponent("noext-binary"))

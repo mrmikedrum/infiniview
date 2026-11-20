@@ -15,6 +15,7 @@ public struct SharedSettings {
         static let editorThemeDark = "editorThemeDark"
         static let addedExtensions = "addedExtensions"
         static let removedExtensions = "removedExtensions"
+        static let dismissedExtensions = "dismissedExtensions"
         static let debugLog = "debugLog"
     }
 
@@ -57,11 +58,16 @@ public struct SharedSettings {
     public func learnedExtensions(builtIn: [String]) -> LearnedExtensions {
         LearnedExtensions(builtIn: builtIn,
                           added: Set(defaults.stringArray(forKey: Key.addedExtensions) ?? []),
-                          removed: Set(defaults.stringArray(forKey: Key.removedExtensions) ?? []))
+                          removed: Set(defaults.stringArray(forKey: Key.removedExtensions) ?? []),
+                          dismissed: Set(defaults.stringArray(forKey: Key.dismissedExtensions) ?? []))
     }
 
     public func save(_ learned: LearnedExtensions) {
         defaults.set(learned.added.sorted(), forKey: Key.addedExtensions)
         defaults.set(learned.removed.sorted(), forKey: Key.removedExtensions)
+        defaults.set(learned.dismissed.sorted(), forKey: Key.dismissedExtensions)
     }
+
+    /// Re-reads the domain from disk: another process (the app or the helper) may have changed it.
+    public func synchronize() { defaults.synchronize() }
 }

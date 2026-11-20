@@ -40,6 +40,10 @@ _Avoid_: Custom extension, registered extension
 Infiniview showing the Preview for file types that macOS already previews as plain text, instead of macOS doing it; can be switched off.
 _Avoid_: Override, system override
 
+**Folder Check**:
+A look through the folder of a file being previewed for files whose extension macOS doesn't know, learning each extension whose files turn out to be text.
+_Avoid_: Scan, crawl, watcher
+
 **Generic Icon**:
 The app-handler or blank-document icon Finder shows when no Preview or Thumbnail is available; the outcome this project exists to eliminate.
 _Avoid_: Default icon, fallback icon

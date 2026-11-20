@@ -6,6 +6,7 @@ LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Versions/A/Framewor
 HELPER="$HOME/Library/Application Support/Infiniview"
 for app in /Applications/Infiniview.app $HOME/Applications/Infiniview.app; do
   [[ -d $app ]] || continue
+  [[ -f $app/Contents/Library/LaunchAgents/com.mdrum.infiniview.helper.plist ]] && $app/Contents/MacOS/Infiniview --unregister
   pluginkit -r $app/Contents/PlugIns/*.appex 2>/dev/null
   $LSREGISTER -u $app
   rm -rf $app && echo "removed $app"
@@ -14,5 +15,6 @@ if [[ -d $HELPER ]]; then
   $LSREGISTER -u "$HELPER/Infiniview Learned Types.app"
   rm -rf $HELPER && echo "removed the Learned Type helper"
 fi
+/usr/libexec/PlistBuddy -c "Delete :FinderActive:APPEXTENSION-com.mdrum.infiniview.quick-action" ~/Library/Preferences/pbs.plist 2>/dev/null
 [[ ${1:-} == --settings ]] && defaults delete com.mdrum.infiniview 2>/dev/null && echo "removed settings"
 exit 0

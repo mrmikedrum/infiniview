@@ -7,7 +7,10 @@ import InfiniviewCore
 @MainActor
 public final class PreviewController {
     public let view = PreviewView(frame: NSRect(x: 0, y: 0, width: 800, height: 600))
-    public static let fontSize: CGFloat = 12
+    /// Body text size: smaller in Finder's narrow Preview Pane than in the Quick Look Panel.
+    var fontSize: CGFloat { view.isCompact ? 9 : 12 }
+    /// Sizes for everything else, given at the Quick Look Panel's scale.
+    private func scaled(_ size: CGFloat) -> CGFloat { (size * fontSize / 12).rounded() }
 
     private let assets: URL
     private let languages: LanguageIndex
@@ -24,6 +27,11 @@ public final class PreviewController {
             guard let self, self.content != nil else { return }
             self.render()
             Self.debugLog("\(self.fileName)\tappearance\t\(self.view.isDark ? "dark" : "light")")
+        }
+        view.onCompactChange = { [weak self] in
+            guard let self, self.content != nil else { return }
+            self.render()
+            Self.debugLog("\(self.fileName)\tsize\t\(self.fontSize)pt")
         }
     }
 
@@ -75,7 +83,7 @@ public final class PreviewController {
 
     private func renderText(_ doc: PreviewContent.TextDocument) {
         let theme = Theme.current(dark: view.isDark, assets: assets, settings: SharedSettings())
-        let styler = TextStyler(theme: theme, fontSize: Self.fontSize)
+        let styler = TextStyler(theme: theme, fontSize: fontSize)
         let text = doc.text
         let storage = styler.plain(text)
         let length = storage.length
@@ -110,7 +118,7 @@ public final class PreviewController {
         view.textView.insertionPointColor = theme.foreground
         view.textView.selectedTextAttributes = [.backgroundColor: theme.selection]
         view.textView.textStorage?.setAttributedString(storage)
-        view.showLineNumbers(lineIndex, color: theme.lineNumber, background: theme.background, fontSize: Self.fontSize)
+        view.showLineNumbers(lineIndex, color: theme.lineNumber, background: theme.background, fontSize: fontSize)
         view.setBanner(notes.isEmpty ? nil : notes.joined(separator: " "))
 
         if let scope, highlightEnd > syncEnd {
@@ -174,10 +182,10 @@ public final class PreviewController {
 
     private func renderCard(_ card: FallbackCard) {
         let s = NSMutableAttributedString()
-        let label: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: 12), .foregroundColor: NSColor.secondaryLabelColor]
-        let value: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: 12), .foregroundColor: NSColor.labelColor]
-        s.append(NSAttributedString(string: fileName + "\n", attributes: [.font: NSFont.boldSystemFont(ofSize: 15), .foregroundColor: NSColor.labelColor]))
-        s.append(NSAttributedString(string: card.kind + "\n\n", attributes: [.font: NSFont.systemFont(ofSize: 13), .foregroundColor: NSColor.labelColor]))
+        let label: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: scaled(12)), .foregroundColor: NSColor.secondaryLabelColor]
+        let value: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: scaled(12)), .foregroundColor: NSColor.labelColor]
+        s.append(NSAttributedString(string: fileName + "\n", attributes: [.font: NSFont.boldSystemFont(ofSize: scaled(15)), .foregroundColor: NSColor.labelColor]))
+        s.append(NSAttributedString(string: card.kind + "\n\n", attributes: [.font: NSFont.systemFont(ofSize: scaled(13)), .foregroundColor: NSColor.labelColor]))
         let dates = DateFormatter()
         dates.dateStyle = .medium
         dates.timeStyle = .short
@@ -187,7 +195,7 @@ public final class PreviewController {
             s.append(NSAttributedString(string: text + "\n", attributes: value))
         }
         s.append(NSAttributedString(string: "\n" + card.hexDump + "\n", attributes: [
-            .font: NSFont.monospacedSystemFont(ofSize: 11, weight: .regular), .foregroundColor: NSColor.labelColor,
+            .font: NSFont.monospacedSystemFont(ofSize: scaled(11), weight: .regular), .foregroundColor: NSColor.labelColor,
         ]))
         view.setWraps(false)
         view.showLineNumbers(nil, color: .secondaryLabelColor, background: .textBackgroundColor)

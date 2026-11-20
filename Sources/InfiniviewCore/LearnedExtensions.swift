@@ -32,11 +32,15 @@ public struct LearnedExtensions: Sendable, Equatable {
     public let builtIn: [String]
     public private(set) var added: Set<String>
     public private(set) var removed: Set<String>
+    /// Added extensions the user removed again. Folder Checks never re-learn these, or the
+    /// built-in ones in `removed`; learning one by hand clears it.
+    public private(set) var dismissed: Set<String>
 
-    public init(builtIn: [String], added: Set<String> = [], removed: Set<String> = []) {
+    public init(builtIn: [String], added: Set<String> = [], removed: Set<String> = [], dismissed: Set<String> = []) {
         self.builtIn = builtIn
         self.added = added.subtracting(builtIn)
         self.removed = removed.intersection(builtIn)
+        self.dismissed = dismissed.subtracting(builtIn).subtracting(added)
     }
 
     public var effective: [String] { Set(builtIn).subtracting(removed).union(added).sorted() }
@@ -45,14 +49,30 @@ public struct LearnedExtensions: Sendable, Equatable {
         ExtensionList.normalize(ext).map { effective.contains($0) } ?? false
     }
 
+    /// The user removed this extension, so only the user may learn it again.
+    public func isDismissed(_ ext: String) -> Bool {
+        ExtensionList.normalize(ext).map { removed.contains($0) || dismissed.contains($0) } ?? false
+    }
+
+    /// Learning asked for by the user (Quick Action, settings): always applies.
     public mutating func learn(_ ext: String) {
         guard let e = ExtensionList.normalize(ext) else { return }
+        dismissed.remove(e)
         if builtIn.contains(e) { removed.remove(e) } else { added.insert(e) }
+    }
+
+    /// Learning by a Folder Check: skipped for extensions the user removed.
+    /// - Returns: whether the extension is newly learned.
+    @discardableResult
+    public mutating func learnAutomatically(_ ext: String) -> Bool {
+        guard let e = ExtensionList.normalize(ext), !isDismissed(e), !isLearned(e) else { return false }
+        learn(e)
+        return true
     }
 
     public mutating func forget(_ ext: String) {
         guard let e = ExtensionList.normalize(ext) else { return }
-        if builtIn.contains(e) { removed.insert(e) } else { added.remove(e) }
+        if builtIn.contains(e) { removed.insert(e) } else if added.remove(e) != nil { dismissed.insert(e) }
     }
 }
 

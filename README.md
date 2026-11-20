@@ -23,7 +23,8 @@ Other Quick Look apps that claim the same files (PreviewText, QLOmni, Syntax Hig
 ## Use
 
 - **Quick Look** (space) and Finder's **Preview Pane** show the Preview.
-- **Learning an extension**: right-click a file → Quick Actions → **Always Preview as Text**. From then on every file with that extension previews as text, straight away. This works for extensions macOS doesn't know. Ones it already knows keep their own preview, and Takeover covers macOS's own text types.
+- **Learning extensions** happens by itself. Whenever Infiniview shows a Preview, a background helper checks the rest of that folder (up to 1,000 files, not subfolders) and learns the extensions of text files macOS doesn't recognise, so their Preview works the next time. The very first file with a new extension can still get macOS's own preview until something else in its folder has been previewed. A learned extension also makes those files open in your default text editor.
+- **Learning by hand**: right-click a file → Quick Actions → **Always Preview as Text**. From then on every file with that extension previews as text, straight away. This works for extensions macOS doesn't know. Ones it already knows keep their own preview, and Takeover covers macOS's own text types.
 - **Settings** (open the Infiniview app):
   - **Takeover** (on by default): Infiniview also previews the types macOS shows as plain text, such as source code, JSON, YAML, XML and Markdown. Off: macOS shows its own preview for them.
   - **Learned Extensions**: add or remove extensions.
@@ -52,7 +53,7 @@ swift run PreviewRender <file> out.png [light|dark]   # render a Preview to PNG
 scripts/update-highlighting.sh [vscode tag]           # regenerate Vendor/highlighting (needs Node)
 ```
 
-`scripts/check.sh` uses a small Quick Look host (`tools/qlprobe`), because `qlmanage -p` crashes on macOS 27 whenever it hosts a preview extension. To see what the extensions do in normal use, run `defaults write com.mdrum.infiniview debugLog -bool true`. Each preview then writes a line to `Library/Logs/Infiniview.log` in the extension's container (`~/Library/Containers/com.mdrum.infiniview.preview` or `….takeover`).
+`scripts/check.sh` uses a small Quick Look host (`tools/qlprobe`), because `qlmanage -p` crashes on macOS 27 whenever it hosts a preview extension. To see what the extensions do in normal use, run `defaults write com.mdrum.infiniview debugLog -bool true`. Each preview then writes a line to `Library/Logs/Infiniview.log` in the extension's container (`~/Library/Containers/com.mdrum.infiniview.preview` or `….takeover`), and each Folder Check writes a line to `~/Library/Logs/Infiniview-helper.log`.
 
 Before each release, and on each macOS version, run through the [manual checklist](docs/manual-checklist.md).
 

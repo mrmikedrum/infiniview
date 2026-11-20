@@ -1,4 +1,5 @@
 import AppKit
+import InfiniviewCore
 import InfiniviewPreview
 import QuickLookUI
 
@@ -22,6 +23,8 @@ final class PreviewViewController: NSViewController, QLPreviewingController {
 
     nonisolated func preparePreviewOfFile(at url: URL, completionHandler: @escaping (Error?) -> Void) {
         // Quick Look calls this on the main thread for view-based previews; hop there if not.
+        // Learn the text extensions of this file's neighbours before they're previewed (ADR-0005).
+        FolderCheckClient.request(folder: url.deletingLastPathComponent())
         nonisolated(unsafe) let handler = completionHandler
         let work = { @MainActor in
             do {

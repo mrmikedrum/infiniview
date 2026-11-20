@@ -1,4 +1,5 @@
 import InfiniviewCore
+import InfiniviewSystem
 import SwiftUI
 
 @MainActor
@@ -9,6 +10,7 @@ final class SettingsModel: ObservableObject {
     @Published private(set) var editors: [EditorThemes.Editor] = []
     /// Nil for the bundled pair, else the editor's name.
     @Published var themeChoice: String?
+    @Published private(set) var helper: HelperAgent.State = .off
     // View state lives here rather than in @State: SwiftUI's @State is a compiler macro, and the
     // Command Line Tools don't ship SwiftUI's macro plugin.
     @Published var newExtension = ""
@@ -20,7 +22,9 @@ final class SettingsModel: ObservableObject {
     }
 
     func reload() {
+        settings.synchronize()
         learned = settings.learnedExtensions(builtIn: BuiltInList.extensions)
+        helper = HelperAgent.register()
         takeover = TakeoverSwitch.isOn()
         editors = EditorThemeStore.editors()
         if let choice = themeChoice, !editors.contains(where: { $0.name == choice }) { themeChoice = nil }
@@ -86,8 +90,20 @@ struct SettingsView: View {
                     Button("Remove") { if let s = model.selection { model.forget(s); model.selection = nil } }
                         .disabled(model.selection == nil)
                 }
-                Text("Files with these extensions preview as text. In Finder you can also right-click a file and choose Quick Actions → Always Preview as Text. Extensions macOS already has a type for keep their own preview.")
+                Text("Files with these extensions preview as text. Whenever Infiniview shows a preview, it checks the rest of that folder and learns the extensions of any text files macOS doesn't recognise. You can also right-click a file in Finder and choose Quick Actions → Always Preview as Text. Removed extensions are never learned again automatically.")
                     .font(.caption).foregroundStyle(.secondary)
+                if model.helper != .enabled {
+                    HStack {
+                        Text(model.helper == .needsApproval
+                             ? "Folder checks are off until Infiniview is allowed under Login Items."
+                             : "Folder checks aren't running. Reinstall Infiniview.")
+                            .font(.caption).foregroundStyle(.orange)
+                        Spacer()
+                        if model.helper == .needsApproval {
+                            Button("Open Login Items") { HelperAgent.openLoginItemsSettings() }
+                        }
+                    }
+                }
             }
 
             Section("Theme") {
