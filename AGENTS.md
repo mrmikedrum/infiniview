@@ -8,7 +8,7 @@ This is a public project meant to work on anyone's Mac. Keep the maintainer's pe
 
 ### Issue tracker
 
-GitHub Issues on `mrmikedrum/quicklook-preview`, via the `gh` CLI (account `mrmikedrum`). See `docs/agents/issue-tracker.md`.
+GitHub Issues on `mrmikedrum/infiniview`, via the `gh` CLI (account `mrmikedrum`). See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
