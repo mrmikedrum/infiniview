@@ -65,7 +65,7 @@ public struct TextStyler: @unchecked Sendable {
             let r = span.range
             switch span.kind {
             case .heading(let level):
-                let scale: CGFloat = [1.6, 1.4, 1.25, 1.1, 1.05, 1.0][min(level, 6) - 1]
+                let scale: CGFloat = [1.3, 1.2, 1.1, 1.05, 1.0, 1.0][min(level, 6) - 1]
                 storage.addAttribute(.font, value: NSFont.monospacedSystemFont(ofSize: font.pointSize * scale, weight: .bold), range: r)
             case .bold:
                 storage.enumerateAttribute(.font, in: r) { value, sub, _ in

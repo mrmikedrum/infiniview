@@ -11,6 +11,21 @@ public final class PreviewView: NSView {
     private var ruler: LineNumberRuler?
     /// Called when the system appearance changes (light/dark).
     public var onAppearanceChange: (() -> Void)?
+    /// Narrower than this, the Preview is in Finder's Preview Pane (or a small Quick Look Panel)
+    /// and uses smaller text.
+    public static let compactWidth: CGFloat = 600
+    public private(set) var isCompact = false
+    /// Called when the view's width crosses `compactWidth`.
+    public var onCompactChange: (() -> Void)?
+
+    public override func setFrameSize(_ newSize: NSSize) {
+        super.setFrameSize(newSize)
+        let compact = newSize.width > 0 && newSize.width < Self.compactWidth
+        guard compact != isCompact else { return }
+        isCompact = compact
+        // Not during layout: the handler restyles the text.
+        DispatchQueue.main.async { [weak self] in self?.onCompactChange?() }
+    }
 
     public override init(frame: NSRect) {
         textView = NSTextView(usingTextLayoutManager: true)
@@ -77,7 +92,7 @@ public final class PreviewView: NSView {
         banner.isHidden = text == nil
     }
 
-    public func showLineNumbers(_ index: LineIndex?, color: NSColor, background: NSColor, fontSize: CGFloat = 12) {
+    public func showLineNumbers(_ index: LineIndex?, color: NSColor, background: NSColor, fontSize: CGFloat = 9) {
         if let index {
             let r = ruler ?? LineNumberRuler(textView: textView)
             r.fontSize = fontSize
@@ -132,8 +147,8 @@ final class LineNumberRuler: NSRulerView {
 
     /// The body text size: the text view's own font is whatever its first character uses
     /// (a large heading, say).
-    var fontSize: CGFloat = 12 { didSet { updateThickness() } }
-    private var font: NSFont { .monospacedDigitSystemFont(ofSize: max(9, fontSize - 1), weight: .regular) }
+    var fontSize: CGFloat = 9 { didSet { updateThickness() } }
+    private var font: NSFont { .monospacedDigitSystemFont(ofSize: max(7, fontSize - 1), weight: .regular) }
 
     private func updateThickness() {
         let digits = max(3, String(lineIndex.count).count)
