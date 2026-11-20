@@ -1,6 +1,6 @@
-# Quick Look Preview
+# Infiniview
 
-Infiniview: a macOS app that lets Quick Look show the contents of every human-readable file, whatever its extension, so Finder never falls back to a generic app icon.
+A macOS app that lets Quick Look show the contents of every human-readable file, whatever its extension, so Finder never falls back to a generic app icon.
 
 ## Language
 
