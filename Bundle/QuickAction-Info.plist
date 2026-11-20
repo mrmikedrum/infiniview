@@ -16,10 +16,10 @@
 		<key>NSExtensionPrincipalClass</key><string>ActionViewController</string>
 		<key>NSExtensionAttributes</key>
 		<dict>
-			<key>NSExtensionServiceRoleType</key><string>NSExtensionServiceRoleTypeEditor</string>
+			<key>NSExtensionServiceRoleType</key><string>NSExtensionServiceRoleTypeViewer</string>
 			<key>NSExtensionServiceAllowsFinderPreviewItem</key><true/>
 			<key>NSExtensionServiceAllowsTouchBarItem</key><false/>
-			<key>NSExtensionServiceFinderPreviewIconName</key><string>NSActionTemplate</string>
+			<key>NSExtensionServiceFinderPreviewIconName</key><string>Icon_Template</string>
 			<key>NSExtensionActivationRule</key>
 			<string>SUBQUERY(extensionItems, $item, SUBQUERY($item.attachments, $a, ANY $a.registeredTypeIdentifiers UTI-CONFORMS-TO "public.data").@count == 1).@count == 1</string>
 		</dict>

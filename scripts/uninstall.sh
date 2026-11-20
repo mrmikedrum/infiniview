@@ -15,5 +15,6 @@ if [[ -d $HELPER ]]; then
   $LSREGISTER -u "$HELPER/Infiniview Learned Types.app"
   rm -rf $HELPER && echo "removed the Learned Type helper"
 fi
+/usr/libexec/PlistBuddy -c "Delete :FinderActive:APPEXTENSION-com.mdrum.infiniview.quick-action" ~/Library/Preferences/pbs.plist 2>/dev/null
 [[ ${1:-} == --settings ]] && defaults delete com.mdrum.infiniview 2>/dev/null && echo "removed settings"
 exit 0

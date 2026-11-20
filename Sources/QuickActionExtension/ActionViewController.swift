@@ -24,11 +24,22 @@ final class ActionViewController: NSViewController {
         super.viewDidLoad()
         message.stringValue = "…"
         let providers = (extensionContext?.inputItems as? [NSExtensionItem] ?? []).flatMap { $0.attachments ?? [] }
-        guard let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) }) else {
+        guard let provider = providers.first else {
             message.stringValue = "Choose a file first."
             return
         }
-        _ = provider.loadObject(ofClass: URL.self) { url, _ in
+        // Finder offers the file under its own type (often a dynamic one) and names it; only the
+        // name is needed.
+        if let name = provider.suggestedName, !name.isEmpty {
+            learn(URL(fileURLWithPath: name))
+            return
+        }
+        guard let type = provider.registeredTypeIdentifiers.first else {
+            message.stringValue = "Choose a file first."
+            return
+        }
+        provider.loadItem(forTypeIdentifier: type, options: nil) { item, _ in
+            let url = item as? URL
             DispatchQueue.main.async { MainActor.assumeIsolated { self.learn(url) } }
         }
     }

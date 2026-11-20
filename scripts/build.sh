@@ -62,7 +62,8 @@ preview_appex InfiniviewTakeover com.mdrum.infiniview.takeover "Infiniview Takeo
   ${(f)"$(grep -v '^#' Resources/takeover-types.txt | grep .)"}
 
 QA=$APP/Contents/PlugIns/AlwaysPreviewAsText.appex
-mkdir -p $QA/Contents/MacOS
+mkdir -p $QA/Contents/{MacOS,Resources}
+cp Bundle/QuickActionResources/* $QA/Contents/Resources/
 cp $BIN/QuickActionExtension $QA/Contents/MacOS/
 fill Bundle/QuickAction-Info.plist $QA/Contents/Info.plist
 
@@ -97,8 +98,11 @@ for i in {1..10}; do
   sleep 1
   (( $(pluginkit -m -p com.apple.quicklook.preview | grep -c com.mdrum.infiniview) == 2 )) && break
 done
-# Finder lists a new Quick Action only once it is turned on.
+# Finder lists a new Quick Action only once it is turned on, both as an extension and in Finder's own
+# Quick Actions list (Quick Actions → Customize…, kept in the pbs defaults domain).
 pluginkit -e use -i com.mdrum.infiniview.quick-action
+defaults write pbs FinderActive -dict-add APPEXTENSION-com.mdrum.infiniview.quick-action -bool true
+killall pbs 2>/dev/null || true
 # Register the Learned Type with the built-in list, and the Folder Check helper (the app does both on
 # every launch too).
 $DEST/Contents/MacOS/Infiniview --register
