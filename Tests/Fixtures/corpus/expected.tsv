@@ -1,0 +1,27 @@
+# file	classification
+run-tests	text:utf8
+tool	text:utf8
+not-executable-script	text:utf8
+Dockerfile	text:utf8
+Makefile	text:utf8
+NOTES	text:utf8
+settings-json	text:utf8
+feed	text:utf8
+.exampleignore	text:utf8
+.examplerc	text:utf8
+.env	text:utf8
+settings.zqx	text:utf8
+schema.lblx	text:utf8
+utf8-bom.txt	text:utf8BOM
+utf8-multibyte.txt	text:utf8
+utf16le.txt	text:utf16LE
+utf16be.txt	text:utf16BE
+latin1.txt	text:latin1
+ansi-colors.log	text:utf8
+rtf-in-txt.txt	rtf
+styled.md	text:utf8
+empty	text:utf8
+blob.bin	binary
+noext-binary	binary
+controls-no-nul	binary
+archive.gz	binary

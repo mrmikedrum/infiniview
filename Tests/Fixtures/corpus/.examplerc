@@ -1,0 +1,2 @@
+export EXAMPLE=1
+alias ll='ls -l'
