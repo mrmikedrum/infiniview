@@ -59,5 +59,6 @@ import Testing
         #expect(card.size.contains(NumberFormatter.localizedString(from: 2_500_000, number: .decimal) + " bytes"))
         #expect(card.created == created && card.modified == modified)
         #expect(card.hexDump.hasPrefix("00000000  1f 8b 08 00"))
+        #expect(FallbackCard(head: Data([1]), size: 130, created: nil, modified: nil).size == "130 bytes")
     }
 }

@@ -20,7 +20,11 @@ public final class PreviewController {
     public init(assets: URL) throws {
         self.assets = assets
         languages = try LanguageIndex(json: Data(contentsOf: assets.appendingPathComponent("languages.json")))
-        view.onAppearanceChange = { [weak self] in self?.render() }
+        view.onAppearanceChange = { [weak self] in
+            guard let self, self.content != nil else { return }
+            self.render()
+            Self.debugLog("\(self.fileName)\tappearance\t\(self.view.isDark ? "dark" : "light")")
+        }
     }
 
     public func load(_ url: URL) throws {
@@ -106,7 +110,7 @@ public final class PreviewController {
         view.textView.insertionPointColor = theme.foreground
         view.textView.selectedTextAttributes = [.backgroundColor: theme.selection]
         view.textView.textStorage?.setAttributedString(storage)
-        view.showLineNumbers(lineIndex, color: theme.lineNumber, background: theme.background)
+        view.showLineNumbers(lineIndex, color: theme.lineNumber, background: theme.background, fontSize: Self.fontSize)
         view.setBanner(notes.isEmpty ? nil : notes.joined(separator: " "))
 
         if let scope, highlightEnd > syncEnd {

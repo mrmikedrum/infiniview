@@ -33,6 +33,8 @@ public final class PreviewView: NSView {
         scrollView.autohidesScrollers = true
         scrollView.borderType = .noBorder
         scrollView.documentView = textView
+        // Start at the visible size; autoresizing then keeps the width in step with the view.
+        textView.frame = NSRect(origin: .zero, size: scrollView.contentSize)
 
         banner.isHidden = true
         banner.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
@@ -75,9 +77,10 @@ public final class PreviewView: NSView {
         banner.isHidden = text == nil
     }
 
-    public func showLineNumbers(_ index: LineIndex?, color: NSColor, background: NSColor) {
+    public func showLineNumbers(_ index: LineIndex?, color: NSColor, background: NSColor, fontSize: CGFloat = 12) {
         if let index {
             let r = ruler ?? LineNumberRuler(textView: textView)
+            r.fontSize = fontSize
             r.lineIndex = index
             r.numberColor = color
             r.backgroundColor = background
@@ -127,7 +130,10 @@ final class LineNumberRuler: NSRulerView {
 
     deinit { observers.forEach(NotificationCenter.default.removeObserver) }
 
-    private var font: NSFont { .monospacedDigitSystemFont(ofSize: max(9, (textView?.font?.pointSize ?? 12) - 1), weight: .regular) }
+    /// The body text size: the text view's own font is whatever its first character uses
+    /// (a large heading, say).
+    var fontSize: CGFloat = 12 { didSet { updateThickness() } }
+    private var font: NSFont { .monospacedDigitSystemFont(ofSize: max(9, fontSize - 1), weight: .regular) }
 
     private func updateThickness() {
         let digits = max(3, String(lineIndex.count).count)

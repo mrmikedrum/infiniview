@@ -13,8 +13,9 @@ public struct FallbackCard: Sendable {
 
     public init(head: Data, size: Int, created: Date?, modified: Date?) {
         kind = FileKind.describe(head)
-        let exact = NumberFormatter.localizedString(from: NSNumber(value: size), number: .decimal)
-        self.size = "\(ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file)) (\(exact) bytes)"
+        let short = ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file)
+        let exact = NumberFormatter.localizedString(from: NSNumber(value: size), number: .decimal) + " bytes"
+        self.size = size < 1000 ? exact : "\(short) (\(exact))"
         self.created = created
         self.modified = modified
         hexDump = HexDump.format(head, limit: Self.hexDumpBytes)

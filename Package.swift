@@ -19,6 +19,8 @@ let package = Package(
         .executableTarget(name: "QuickActionExtension", dependencies: ["InfiniviewCore"],
                           swiftSettings: appExtension, linkerSettings: extensionEntry),
         .executableTarget(name: "InfiniviewApp", dependencies: ["InfiniviewCore"]),
+        // Development tool: renders a file through the Preview code to a PNG.
+        .executableTarget(name: "PreviewRender", dependencies: ["InfiniviewPreview"]),
         .testTarget(name: "InfiniviewCoreTests", dependencies: ["InfiniviewCore"]),
         .testTarget(name: "InfiniviewPreviewTests", dependencies: ["InfiniviewPreview"]),
     ]

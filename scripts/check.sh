@@ -3,6 +3,7 @@
 # (QLPreviewView, the machinery Finder uses) and prints what the extension logged for it.
 # `qlmanage -p` can't be used: on macOS 27 it crashes hosting any preview extension.
 #   scripts/check.sh [file...]      (default: the fixture corpus)
+# An argument @light or @dark switches the probe's appearance at that point, live.
 set -euo pipefail
 setopt nullglob
 ROOT=${0:A:h:h}
@@ -30,12 +31,13 @@ FIFO=$(mktemp -u); mkfifo $FIFO
 $PROBE/Contents/MacOS/QLProbe < $FIFO > /dev/null 2>&1 &
 PP=$!
 exec 3>$FIFO
-for f in $files; do print -u3 -- ${f:A}; sleep 1.5; done
+for f in $files; do if [[ $f == @* ]]; then print -u3 -- $f; else print -u3 -- ${f:A}; fi; sleep 1.5; done
 exec 3>&-; sleep 1; kill $PP 2>/dev/null || true; rm -f $FIFO
 [[ $was == 1 ]] || defaults delete com.mdrum.infiniview debugLog
 
 new | cut -f2- | sort -u
 seen=$(new | cut -f2 | sort -u | wc -l | tr -d ' ')
-echo "-- $seen of $#files files reached Infiniview"
+paths=(${files:#@*})
+echo "-- $seen of $#paths files reached Infiniview"
 crashes=($HOME/Library/Logs/DiagnosticReports/PreviewExtension*(Nmm-10))
 (( $#crashes == 0 )) || { echo "crash reports in the last 10 minutes:"; print -l $crashes; exit 1; }

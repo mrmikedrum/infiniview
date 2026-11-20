@@ -111,3 +111,22 @@ let languages = try! LanguageIndex(json: Data(contentsOf: assets.appendingPathCo
         #expect(color(12)?.redComponent == 1)
     }
 }
+
+@Suite struct PreviewControllerTests {
+    @MainActor @Test func textStaysOnTextKit2WithLineNumbers() throws {
+        let controller = try PreviewController(assets: assets)
+        try controller.load(corpus.appendingPathComponent("styled.md"))
+        controller.view.layoutSubtreeIfNeeded()
+        controller.view.scrollView.verticalRulerView?.display()
+        #expect(controller.view.textView.textLayoutManager != nil)
+        #expect(controller.view.textView.string.hasPrefix("# Title"))
+        #expect(controller.view.textView.frame.width > 100)
+    }
+
+    @MainActor @Test func binaryShowsTheCard() throws {
+        let controller = try PreviewController(assets: assets)
+        try controller.load(corpus.appendingPathComponent("noext-binary"))
+        #expect(controller.view.textView.string.contains("ELF 64-bit LSB file"))
+        #expect(controller.view.textView.string.contains("00000000  7f 45 4c 46"))
+    }
+}

@@ -16,6 +16,11 @@ if paths.isEmpty {
     Thread.detachNewThread {
         while let line = readLine() {
             DispatchQueue.main.async {
+                // "@light" / "@dark" switch the probe's appearance live, as the system setting would.
+                if line == "@light" || line == "@dark" {
+                    NSApp.appearance = NSAppearance(named: line == "@light" ? .aqua : .darkAqua)
+                    return
+                }
                 print("probe: \(line)")
                 // Clear first: assigning the same item again is a no-op.
                 view.previewItem = nil
