@@ -13,7 +13,7 @@ Infiniview makes Quick Look show the contents of every human-readable file in Fi
 - **Thumbnails.** Finder keeps its standard icons in file lists. A Thumbnail extension may come later.
 - Rendering documents (HTML as a web page, Markdown as formatted output). Infiniview shows source.
 - Previews for media or other types macOS already handles well.
-- A background watcher that learns extensions automatically.
+- Watching folders for new files, or searching the disk, to learn extensions (see [ADR-0005](adr/0005-learn-extensions-by-folder-check.md)).
 - Format-specific views for binaries (archive listings, `.class` summaries) and claiming named binary types such as `.class`, `.jar`, `.gz`.
 - Notarized downloadable releases.
 
@@ -72,8 +72,12 @@ For files that aren't text: what kind of file it is (in the style of `file(1)`),
 
 ## Learning an extension
 
-- In Finder: **right-click → Quick Actions → "Always preview .xyz as text"** on any file whose extension isn't learned yet. It takes effect immediately, without a rebuild or reinstall.
-- Learned extensions are listed in the settings window, where they can be added and removed.
+Extensions are learned automatically; the user shouldn't have to think about them. See [ADR-0005](adr/0005-learn-extensions-by-folder-check.md).
+
+- **Folder Check**: whenever Infiniview shows a Preview, a background helper checks that file's folder (not subfolders), up to 1,000 entries. For each extension macOS doesn't know, it reads the first 32 KB of one file, and if that's a Text File it learns the extension silently. A new extension takes effect within about a second, so the next Preview in that folder works.
+- **Right-click → Quick Actions → "Always Preview as Text"** stays as a manual backstop. It takes effect immediately, without a rebuild or reinstall.
+- Learned extensions are user state, listed in the settings window so a bad one can be removed. The built-in list is a fixed head start of common extensions (from QLOmni), and nothing learned is ever added to it.
+- macOS treats learned extensions as text, so double-clicking such a file opens the default text editor.
 
 ## Takeover
 
@@ -99,7 +103,8 @@ Day-to-day use happens in Finder.
    - A preview extension claiming `public.data` receives extensionless files and dotfiles.
 2. **Prove highlighting speed**: TextMate grammar highlighting in a sandboxed extension, measured on large files to set the limits.
 3. **MVP**: classification, text Preview with highlighting and Styled Source, RTF, Fallback Card, the Quick Action, the settings window, and the built-in extension list.
-4. **Later**: Thumbnail, a background watcher, named binary types, archive listings.
+4. **Folder Check**: first prove that the sandboxed preview extension can reach a background helper and that the helper can stay running; then build it.
+5. **Later**: Thumbnail (possibly doubling as a Folder Check trigger when a folder opens), a Finder Sync trigger, named binary types, archive listings.
 
 ## Testing
 
