@@ -123,14 +123,14 @@ public enum StyledSource {
     }
 
     private static func re(_ p: String) -> NSRegularExpression { try! NSRegularExpression(pattern: p) }
-    nonisolated(unsafe) private static let fenceLine = re(#"^ {0,3}(`{3,}|~{3,})(.*)$"#)
-    nonisolated(unsafe) private static let heading = re(#"^ {0,3}(#{1,6})( +|$)(.*?)( +#+)? *$"#)
-    nonisolated(unsafe) private static let quote = re(#"^ {0,3}(>)(?: ?>)* ?"#)
-    nonisolated(unsafe) private static let listItem = re(#"^\s*((?:[-*+]|\d{1,9}[.)]) +)"#)
-    nonisolated(unsafe) private static let codeSpan = re(#"(`+)(.+?)(?<!`)\1(?!`)"#)
-    nonisolated(unsafe) private static let link = re(#"!?\[([^\]\n]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)"#)
-    nonisolated(unsafe) private static let boldStars = re(#"(\*\*)(?=\S)(.+?)(?<=\S)\*\*"#)
-    nonisolated(unsafe) private static let boldUnderscores = re(#"(?<![\p{L}\p{N}_])(__)(?=\S)(.+?)(?<=\S)__(?![\p{L}\p{N}_])"#)
-    nonisolated(unsafe) private static let italicStar = re(#"(?<![*\p{L}\p{N}])(\*)(?=[^\s*])(.+?)(?<=[^\s*])\*(?!\*)"#)
-    nonisolated(unsafe) private static let italicUnderscore = re(#"(?<![\p{L}\p{N}_])(_)(?=[^\s_])(.+?)(?<=[^\s_])_(?![\p{L}\p{N}_])"#)
+    private static let fenceLine = re(#"^ {0,3}(`{3,}|~{3,})(.*)$"#)
+    private static let heading = re(#"^ {0,3}(#{1,6})( +|$)(.*?)( +#+)? *$"#)
+    private static let quote = re(#"^ {0,3}(>)(?: ?>)* ?"#)
+    private static let listItem = re(#"^\s*((?:[-*+]|\d{1,9}[.)]) +)"#)
+    private static let codeSpan = re(#"(`+)(.+?)(?<!`)\1(?!`)"#)
+    private static let link = re(#"!?\[([^\]\n]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)"#)
+    private static let boldStars = re(#"(\*\*)(?=\S)(.+?)(?<=\S)\*\*"#)
+    private static let boldUnderscores = re(#"(?<![\p{L}\p{N}_])(__)(?=\S)(.+?)(?<=\S)__(?![\p{L}\p{N}_])"#)
+    private static let italicStar = re(#"(?<![*\p{L}\p{N}])(\*)(?=[^\s*])(.+?)(?<=[^\s*])\*(?!\*)"#)
+    private static let italicUnderscore = re(#"(?<![\p{L}\p{N}_])(_)(?=[^\s_])(.+?)(?<=[^\s_])_(?![\p{L}\p{N}_])"#)
 }

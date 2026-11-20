@@ -2,7 +2,8 @@ import AppKit
 import InfiniviewCore
 
 /// Turns text, highlighting tokens and Styled Source spans into attributes for one theme.
-public struct TextStyler {
+/// Immutable; its Theme's colour cache is only touched on the main thread.
+public struct TextStyler: @unchecked Sendable {
     public let theme: Theme
     public let font: NSFont
     private let bold: NSFont
@@ -31,7 +32,13 @@ public struct TextStyler {
         let end = min(limit, tokens.stoppedAt ?? limit, storage.length)
         storage.beginEditing()
         defer { storage.endEditing() }
-        var i = 0
+        // Start at the token containing `start` (binary search over the pairs).
+        var lo = 0, hi = t.count / 2 - 1
+        while lo < hi {
+            let mid = (lo + hi + 1) / 2
+            if Int(t[mid * 2]) <= start { lo = mid } else { hi = mid - 1 }
+        }
+        var i = max(0, lo) * 2
         while i + 1 < t.count {
             let from = Int(t[i]), meta = t[i + 1]
             var j = i + 2

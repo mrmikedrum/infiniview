@@ -93,3 +93,21 @@ let languages = try! LanguageIndex(json: Data(contentsOf: assets.appendingPathCo
         #expect(marker.alphaComponent < 1) // "**" dimmed
     }
 }
+
+@Suite struct TextStylerTests {
+    @Test func appliesOnlyFromTheGivenStart() throws {
+        let theme = Theme.current(dark: false, assets: assets, settings: SharedSettings(defaults: UserDefaults(suiteName: "iv-tests")))
+        theme.colorMap = ["", "#000000", "#FF0000", "#00FF00"]
+        let styler = TextStyler(theme: theme, fontSize: 12)
+        let s = styler.plain("aaaa bbbb cccc")
+        // tokens: 0 red, 5 green, 10 red
+        let red = UInt32(2 << 15), green = UInt32(3 << 15)
+        let tokens = Highlighter.Tokens(pairs: [0, red, 5, green, 10, red], stoppedAt: nil)
+        styler.apply(tokens, to: s, from: 7, upTo: 14)
+        func color(_ i: Int) -> NSColor? { s.attribute(.foregroundColor, at: i, effectiveRange: nil) as? NSColor }
+        #expect(color(2) == theme.foreground) // before start: untouched
+        #expect(color(5) == theme.foreground)
+        #expect(color(8)?.greenComponent == 1)
+        #expect(color(12)?.redComponent == 1)
+    }
+}

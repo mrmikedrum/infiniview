@@ -43,7 +43,8 @@ public final class Highlighter {
     /// (index → "#RRGGBB"; index 0 unused). Cheap if the theme is already set.
     @discardableResult
     public func setTheme(_ theme: Theme) -> [String] {
-        if loadedTheme != theme.key {
+        // A new Theme object with the same key still needs its colour map filled in.
+        if loadedTheme != theme.key || theme.colorMap.isEmpty {
             let map = api.invokeMethod("setTheme", withArguments: [theme.raw])?.toArray() ?? []
             theme.colorMap = map.map { $0 as? String ?? "" }
             loadedTheme = theme.key
