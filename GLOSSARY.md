@@ -32,6 +32,10 @@ _Avoid_: Binary view, info panel
 Markdown shown with its common elements (headings, bold, italic) visually styled while every markup character stays visible.
 _Avoid_: Rendered Markdown, preview mode
 
+**Archive Browser**:
+The Preview of a zip, tar or compressed file: a tree of what's inside and, in the Quick Look Panel only, a Preview of the selected entry beside it.
+_Avoid_: Archive viewer, file list
+
 **Learned Extension**:
 A file extension the user has told Infiniview to treat as text, or that ships in its built-in list.
 _Avoid_: Custom extension, registered extension

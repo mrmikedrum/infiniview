@@ -6,6 +6,8 @@ public enum PreviewContent {
     case text(TextDocument)
     case rtf(NSAttributedString)
     case card(FallbackCard)
+    /// A zip or tar archive, or a single compressed file (ADR-0006).
+    case archive(ArchiveListing, URL)
 
     public struct TextDocument {
         public var text: String
@@ -22,6 +24,8 @@ public enum PreviewContent {
         defer { try? handle.close() }
         let total = values.fileSize ?? 0
         let sample = try handle.read(upToCount: Classifier.sampleSize) ?? Data()
+        // An archive that can't be read gets the Fallback Card like any other binary file.
+        if Archive.recognizes(sample), let listing = try? Archive.list(url) { return .archive(listing, url) }
         switch Classifier.classify(sample: sample, isTruncated: total > sample.count) {
         case .binary:
             return .card(FallbackCard(head: sample.prefix(FallbackCard.hexDumpBytes), size: total,

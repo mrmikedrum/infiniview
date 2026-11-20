@@ -6,8 +6,16 @@
 
 Every file is made up for the tests. `expected.tsv` lists what the classifier should say.
 """
+import bz2
+import gzip
+import io
+import lzma
 import os
+import struct
 import sys
+import tarfile
+import zipfile
+import zlib
 
 out = sys.argv[1]
 os.makedirs(out, exist_ok=True)
@@ -63,6 +71,95 @@ write("blob.bin", bytes(range(256)) * 4, "binary")
 write("noext-binary", b"\x7fELF\x02\x01\x01\x00" + bytes(56) + bytes(range(1, 200)), "binary")
 write("controls-no-nul", bytes([1, 2, 3, 4, 5, 6, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]) * 16 + b"abc", "binary")
 write("archive.gz", b"\x1f\x8b\x08\x00" + bytes(6) + bytes([7, 9, 200, 3, 0, 1]) * 20, "binary")
+
+
+# Archives: the same small project in each format (ADR-0006).
+def png():
+    def chunk(kind, data):
+        return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
+    rows = b"".join(b"\x00" + bytes([200, 60, 60]) * 4 for _ in range(4))
+    return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", 4, 4, 8, 2, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(rows)) + chunk(b"IEND", b""))
+
+
+LONG_DIR = "project/" + "/".join(["a-rather-long-folder-name"] * 5)
+FILES = {
+    "project/README.md": "# Example project\n\nSome **notes** about it.\n",
+    "project/src/main.py": "print('hello')\n" * 50,
+    "project/config.qqcfg": "key = value\n",
+    "project/docs/caf\u00e9.txt": "Accented name.\n",
+    "project/pixel.png": png(),
+    LONG_DIR + "/deep.txt": "Deep inside.\n",
+}
+STAMP = 1767225600  # 2026-01-01T00:00:00Z
+
+
+def data(v):
+    return v if isinstance(v, bytes) else v.encode("utf-8")
+
+
+def zip_bytes(files, metadata=True):
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        z.writestr(zipfile.ZipInfo("project/empty-dir/", (2026, 1, 1, 0, 0, 0)), b"")
+        for i, (name, v) in enumerate(files.items()):
+            info = zipfile.ZipInfo(name, (2026, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED if i % 2 else zipfile.ZIP_STORED
+            info.external_attr = 0o100644 << 16
+            info.create_system = 3
+            z.writestr(info, data(v))
+        link = zipfile.ZipInfo("project/readme-link", (2026, 1, 1, 0, 0, 0))
+        link.create_system = 3
+        link.external_attr = 0o120777 << 16
+        z.writestr(link, b"README.md")
+        if metadata:
+            z.writestr(zipfile.ZipInfo("__MACOSX/project/._README.md", (2026, 1, 1, 0, 0, 0)), b"\x00\x05\x16\x07")
+    return buf.getvalue()
+
+
+def tar_bytes(fmt):
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w", format=fmt) as t:
+        d = tarfile.TarInfo("project/empty-dir")
+        d.type, d.mode, d.mtime = tarfile.DIRTYPE, 0o755, STAMP
+        t.addfile(d)
+        for name, v in FILES.items():
+            info = tarfile.TarInfo(name)
+            info.size, info.mode, info.mtime = len(data(v)), 0o644, STAMP
+            t.addfile(info, io.BytesIO(data(v)))
+        link = tarfile.TarInfo("project/readme-link")
+        link.type, link.linkname, link.mtime = tarfile.SYMTYPE, "README.md", STAMP
+        t.addfile(link)
+        meta = tarfile.TarInfo("project/._README.md")
+        meta.size, meta.mtime = 4, STAMP
+        t.addfile(meta, io.BytesIO(b"\x00\x05\x16\x07"))
+    return buf.getvalue()
+
+
+write("bundle.zip", zip_bytes(FILES), "binary")
+write("bundle.tar", tar_bytes(tarfile.GNU_FORMAT), "binary")
+pax = tar_bytes(tarfile.PAX_FORMAT)
+write("bundle.tar.gz", gzip.compress(pax, mtime=0), "binary")
+write("bundle.tar.bz2", bz2.compress(pax), "binary")
+write("bundle.tar.xz", lzma.compress(pax), "binary")
+gz = io.BytesIO()
+with gzip.GzipFile(filename="notes.txt", mode="wb", fileobj=gz, mtime=0) as g:
+    g.write(b"Plain notes, gzip compressed.\n")
+write("notes.txt.gz", gz.getvalue(), "binary")
+# Zip64 records, as archives over 4 GB have, forced on a small zip by lowering zipfile's limits.
+limits = zipfile.ZIP_FILECOUNT_LIMIT, zipfile.ZIP64_LIMIT
+zipfile.ZIP_FILECOUNT_LIMIT, zipfile.ZIP64_LIMIT = 1, 64
+write("zip64.zip", zip_bytes(FILES, metadata=False), "binary")
+zipfile.ZIP_FILECOUNT_LIMIT, zipfile.ZIP64_LIMIT = limits
+# A zip whose one entry is marked encrypted.
+enc = bytearray(zip_bytes({"secret.txt": "not really secret\n"}, metadata=False))
+for sig in (b"PK\x03\x04", b"PK\x01\x02"):
+    i = 0
+    while (i := enc.find(sig, i)) >= 0:
+        flag = i + (6 if sig == b"PK\x03\x04" else 8)
+        enc[flag] |= 1
+        i += 4
+write("encrypted.zip", bytes(enc), "binary")
 
 with open(os.path.join(out, "expected.tsv"), "w") as f:
     f.write("# file\tclassification\n")

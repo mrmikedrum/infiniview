@@ -28,3 +28,11 @@ blob.bin	binary
 noext-binary	binary
 controls-no-nul	binary
 archive.gz	binary
+bundle.zip	binary
+bundle.tar	binary
+bundle.tar.gz	binary
+bundle.tar.bz2	binary
+bundle.tar.xz	binary
+notes.txt.gz	binary
+zip64.zip	binary
+encrypted.zip	binary

@@ -39,6 +39,17 @@ Run on each macOS version (record the version and date). The fixtures are in `Te
 - [ ] In a folder under Documents, Desktop or Downloads, the first Folder Check may bring up a macOS prompt for Infiniview to access that folder. Note what it says.
 - [ ] Remove the learned extension in the settings window, then preview `notes` again: the extension isn't learned back.
 
+## Archives
+
+- [ ] `bundle.zip`, `bundle.tar`, `bundle.tar.gz`, `bundle.tar.bz2`, `bundle.tar.xz` in the Quick Look Panel: a header line, the tree with `project` open, and `README.md` selected and shown as Styled Source beside it. No `__MACOSX` or `._README.md`.
+- [ ] Click `src` → `main.py`: highlighted Python. Click `pixel.png`: a small red square. Click `readme-link`: "Link to README.md". Click `empty-dir`: a folder note.
+- [ ] Drag the divider: both sides resize.
+- [ ] The same files in the Preview Pane: only the tree, in small text, and folders open and close.
+- [ ] `notes.txt.gz`: one entry, `notes.txt`, whose text shows when selected.
+- [ ] `encrypted.zip`: `secret.txt` is listed, and selecting it says it's encrypted.
+- [ ] `archive.gz` (damaged): Fallback Card.
+- [ ] A large `.tar.gz` (hundreds of MB): the Preview appears within a few seconds, with a note if the listing stopped early.
+
 ## Takeover
 
 - [ ] With Takeover on, a `.json`, `.py` and `.md` file get Infiniview's Preview (line numbers).

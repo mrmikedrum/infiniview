@@ -56,8 +56,12 @@ preview_appex() { # name bundle-id display-name types...
   ditto Vendor/highlighting $ax/Contents/Resources/highlighting
   fill Bundle/Preview-Info.plist $ax/Contents/Info.plist __BUNDLE_ID__ $id __NAME__ ${ax:t:r} __DISPLAY_NAME__ $display __TYPES__ "$(types "$@")"
 }
+# Archives (ADR-0006): zip and jar, tar, and gzip, bzip2 and xz files, tarred or not.
+ARCHIVE_TYPES=(public.zip-archive com.sun.java-archive com.sun.web-application-archive public.tar-archive
+  org.gnu.gnu-zip-archive org.gnu.gnu-zip-tar-archive public.bzip2-archive public.tar-bzip2-archive
+  org.tukaani.xz-archive org.tukaani.tar-xz-archive)
 preview_appex InfiniviewPreview com.mdrum.infiniview.preview "Infiniview" \
-  public.data public.unix-executable com.mdrum.infiniview.learned-text
+  public.data public.unix-executable com.mdrum.infiniview.learned-text $ARCHIVE_TYPES
 preview_appex InfiniviewTakeover com.mdrum.infiniview.takeover "Infiniview Takeover" \
   ${(f)"$(grep -v '^#' Resources/takeover-types.txt | grep .)"}
 

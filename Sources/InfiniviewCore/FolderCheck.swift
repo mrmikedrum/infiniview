@@ -13,11 +13,14 @@ public enum FolderCheck {
     /// its files that is non-empty and readable, from the first `Classifier.sampleSize` bytes.
     public static func textExtensions(in folder: URL, isCandidate: (String) -> Bool) -> [String] {
         let keys: [URLResourceKey] = [.isRegularFileKey, .fileSizeKey]
-        guard let entries = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys) else {
-            return []
-        }
+        // An enumerator stops after `entryLimit`; listing the whole folder first takes seconds and
+        // hundreds of MB in a folder of hundreds of thousands of files.
+        guard let enumerator = FileManager.default.enumerator(
+            at: folder, includingPropertiesForKeys: keys, options: [.skipsSubdirectoryDescendants]) else { return [] }
         var order = [String](), samples = [String: [URL]](), rejected = Set<String>()
-        for url in entries.prefix(entryLimit) {
+        var seen = 0
+        while seen < entryLimit, let url = enumerator.nextObject() as? URL {
+            seen += 1
             guard let ext = ExtensionList.normalize(url.pathExtension), !rejected.contains(ext),
                   let values = try? url.resourceValues(forKeys: Set(keys)),
                   values.isRegularFile == true, (values.fileSize ?? 0) > 0 else { continue }
