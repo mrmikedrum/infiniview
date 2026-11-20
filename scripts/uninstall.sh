@@ -6,6 +6,7 @@ LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Versions/A/Framewor
 HELPER="$HOME/Library/Application Support/Infiniview"
 for app in /Applications/Infiniview.app $HOME/Applications/Infiniview.app; do
   [[ -d $app ]] || continue
+  [[ -f $app/Contents/Library/LaunchAgents/com.mdrum.infiniview.helper.plist ]] && $app/Contents/MacOS/Infiniview --unregister
   pluginkit -r $app/Contents/PlugIns/*.appex 2>/dev/null
   $LSREGISTER -u $app
   rm -rf $app && echo "removed $app"

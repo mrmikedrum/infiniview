@@ -9,5 +9,8 @@
 	<!-- Settings from the app's defaults domain; app groups don't work with ad-hoc signing. -->
 	<key>com.apple.security.temporary-exception.shared-preference.read-only</key>
 	<array><string>com.mdrum.infiniview</string></array>
+	<!-- Folder Checks: ask the background helper (ADR-0005). -->
+	<key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
+	<array><string>com.mdrum.infiniview.helper</string></array>
 </dict>
 </plist>

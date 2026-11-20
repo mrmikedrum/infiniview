@@ -18,7 +18,11 @@ let package = Package(
                           swiftSettings: appExtension, linkerSettings: extensionEntry),
         .executableTarget(name: "QuickActionExtension", dependencies: ["InfiniviewCore"],
                           swiftSettings: appExtension, linkerSettings: extensionEntry),
-        .executableTarget(name: "InfiniviewApp", dependencies: ["InfiniviewCore"]),
+        // Launch Services registration and the helper's launch agent, shared by the app and helper.
+        .target(name: "InfiniviewSystem", dependencies: ["InfiniviewCore"]),
+        .executableTarget(name: "InfiniviewApp", dependencies: ["InfiniviewCore", "InfiniviewSystem"]),
+        // The background helper that runs Folder Checks (ADR-0005).
+        .executableTarget(name: "InfiniviewHelper", dependencies: ["InfiniviewCore", "InfiniviewSystem"]),
         // Development tool: renders a file through the Preview code to a PNG.
         .executableTarget(name: "PreviewRender", dependencies: ["InfiniviewPreview"]),
         .testTarget(name: "InfiniviewCoreTests", dependencies: ["InfiniviewCore"]),

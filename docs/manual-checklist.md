@@ -31,6 +31,14 @@ Run on each macOS version (record the version and date). The fixtures are in `Te
 - [ ] Settings window: the extension is in the list; remove it, and the file goes back to macOS's preview.
 - [ ] After a restart, learned extensions still preview as text.
 
+## Folder Checks
+
+- [ ] After installing, macOS reports a background item for Infiniview, and the settings window shows no warning about Folder Checks.
+- [ ] Make a folder with `notes` (no extension), `a.<new ext>` with text in it, and `b.<another new ext>` with binary bytes. Press space on `a.…`: macOS's own preview.
+- [ ] Press space on `notes`, then on `a.…` again: the text shows. `b.…` still gets macOS's preview.
+- [ ] In a folder under Documents, Desktop or Downloads, the first Folder Check may bring up a macOS prompt for Infiniview to access that folder. Note what it says.
+- [ ] Remove the learned extension in the settings window, then preview `notes` again: the extension isn't learned back.
+
 ## Takeover
 
 - [ ] With Takeover on, a `.json`, `.py` and `.md` file get Infiniview's Preview (line numbers).

@@ -1,5 +1,6 @@
 import AppKit
 import InfiniviewCore
+import InfiniviewSystem
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -14,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         buildMenu()
         // Re-register every launch: cheap, and repairs a lost Launch Services registration.
         LearnedTypeRegistrar.apply(model.learned.effective)
+        HelperAgent.register()
         EditorThemeStore.refresh()
         let isDefaultLaunch = notification.userInfo?[NSApplication.launchIsDefaultUserInfoKey] as? Bool ?? true
         if isDefaultLaunch { showSettings() }

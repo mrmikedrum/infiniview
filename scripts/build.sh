@@ -17,6 +17,7 @@ LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Versions/A/Framewor
 swift build -c release --arch arm64 --product InfiniviewApp
 swift build -c release --arch arm64 --product PreviewExtension
 swift build -c release --arch arm64 --product QuickActionExtension
+swift build -c release --arch arm64 --product InfiniviewHelper
 BIN=$(swift build -c release --arch arm64 --show-bin-path)
 
 # Info.plist keys Xcode normally adds; without them a preview extension crashes at launch.
@@ -41,8 +42,10 @@ fill() { # template output [KEY value]...
 types() { for t in "$@"; do print -r -- "				<string>$t</string>"; done }
 
 rm -rf $APP
-mkdir -p $APP/Contents/{MacOS,Resources,PlugIns}
+mkdir -p $APP/Contents/{MacOS,Resources,PlugIns,Library/LaunchAgents}
 cp $BIN/InfiniviewApp $APP/Contents/MacOS/Infiniview
+cp $BIN/InfiniviewHelper $APP/Contents/MacOS/
+cp Bundle/Helper-LaunchAgent.plist $APP/Contents/Library/LaunchAgents/com.mdrum.infiniview.helper.plist
 cp Resources/builtin-extensions.txt THIRD-PARTY-NOTICES.md LICENSE $APP/Contents/Resources/
 fill Bundle/App-Info.plist $APP/Contents/Info.plist
 
@@ -68,6 +71,7 @@ for ax in InfiniviewPreview InfiniviewTakeover; do
   codesign -f -s - -o runtime --entitlements Bundle/Preview.entitlements $APP/Contents/PlugIns/$ax.appex
 done
 codesign -f -s - -o runtime --entitlements Bundle/QuickAction.entitlements $QA
+codesign -f -s - -o runtime -i com.mdrum.infiniview.helper $APP/Contents/MacOS/InfiniviewHelper
 codesign -f -s - $APP
 codesign --verify --deep --strict $APP
 echo "built $APP"
@@ -79,6 +83,8 @@ elif [[ -w /Applications ]]; then DEST_DIR=/Applications
 else DEST_DIR=$HOME/Applications; mkdir -p $DEST_DIR
 fi
 DEST=$DEST_DIR/Infiniview.app
+# A running helper keeps the old binary; stop it so launchd starts the new one on demand.
+launchctl kill TERM gui/$UID/com.mdrum.infiniview.helper 2>/dev/null || true
 for ax in InfiniviewPreview InfiniviewTakeover AlwaysPreviewAsText; do
   pluginkit -r $DEST/Contents/PlugIns/$ax.appex 2>/dev/null || true
 done
@@ -91,6 +97,7 @@ for i in {1..10}; do
   sleep 1
   (( $(pluginkit -m -p com.apple.quicklook.preview | grep -c com.mdrum.infiniview) == 2 )) && break
 done
-# Register the Learned Type with the built-in list (the app does this on every launch too).
+# Register the Learned Type with the built-in list, and the Folder Check helper (the app does both on
+# every launch too).
 $DEST/Contents/MacOS/Infiniview --register
 echo "installed $DEST"
