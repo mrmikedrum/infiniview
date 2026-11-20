@@ -15,12 +15,16 @@ public struct SharedSettings {
         static let editorThemeDark = "editorThemeDark"
         static let addedExtensions = "addedExtensions"
         static let removedExtensions = "removedExtensions"
+        static let debugLog = "debugLog"
     }
 
     private let defaults: UserDefaults
 
-    public init(defaults: UserDefaults? = UserDefaults(suiteName: SharedSettings.domain)) {
-        self.defaults = defaults ?? .standard
+    /// In the app the domain is its own (`.standard`); elsewhere it's read as a suite.
+    public init(defaults: UserDefaults? = nil) {
+        if let defaults { self.defaults = defaults }
+        else if Bundle.main.bundleIdentifier == Self.domain { self.defaults = .standard }
+        else { self.defaults = UserDefaults(suiteName: Self.domain) ?? .standard }
     }
 
     public var themeSource: ThemeSource {
@@ -44,6 +48,10 @@ public struct SharedSettings {
         get { defaults.string(forKey: Key.editorThemeDark) }
         nonmutating set { defaults.set(newValue, forKey: Key.editorThemeDark) }
     }
+
+    /// Opt-in diagnostics: each preview appends a line to Library/Logs/Infiniview.log in the
+    /// extension's container. Set with `defaults write com.mdrum.infiniview debugLog -bool true`.
+    public var debugLog: Bool { defaults.bool(forKey: Key.debugLog) }
 
     /// The user's changes to the built-in Learned Extensions.
     public func learnedExtensions(builtIn: [String]) -> LearnedExtensions {

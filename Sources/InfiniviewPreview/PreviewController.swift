@@ -24,10 +24,37 @@ public final class PreviewController {
     }
 
     public func load(_ url: URL) throws {
+        let start = DispatchTime.now().uptimeNanoseconds
         fileName = url.lastPathComponent
-        content = try PreviewContent.load(url, languages: languages)
+        do {
+            content = try PreviewContent.load(url, languages: languages)
+        } catch {
+            Self.debugLog("\(fileName)\terror \(error)")
+            throw error
+        }
         if case .text(let doc) = content { lineIndex = LineIndex(doc.text) }
         render()
+        if SharedSettings().debugLog {
+            let ms = Double(DispatchTime.now().uptimeNanoseconds - start) / 1e6
+            let kind: String = switch content {
+            case .text(let doc): "text\t\(doc.language?.id ?? "plain")\t\(doc.shownBytes)/\(doc.totalBytes)"
+            case .rtf: "rtf\t-\t-"
+            case .card(let card): "card\t\(card.kind)\t-"
+            case nil: "none\t-\t-"
+            }
+            Self.debugLog("\(fileName)\t\(kind)\t\(String(format: "%.1f", ms))ms\t\(view.isDark ? "dark" : "light")")
+        }
+    }
+
+    /// One line per preview in the container's Library/Logs/Infiniview.log, when debugLog is on.
+    static func debugLog(_ line: String) {
+        guard SharedSettings().debugLog else { return }
+        let dir = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask)[0].appendingPathComponent("Logs")
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let url = dir.appendingPathComponent("Infiniview.log")
+        let entry = Data((ISO8601DateFormatter().string(from: Date()) + "\t" + line + "\n").utf8)
+        if let h = try? FileHandle(forWritingTo: url) { h.seekToEndOfFile(); h.write(entry); try? h.close() }
+        else { try? entry.write(to: url) }
     }
 
     func render() {

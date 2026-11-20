@@ -1,0 +1,72 @@
+# System types the Takeover extension claims: types macOS previews as plain text. Quick Look
+# matches a file's exact type, not what it conforms to, so each type is listed.
+# Taken from Apple's own declarations (CoreTypes). Left to macOS: HTML, XHTML, SVG, RTF, CSV/TSV
+# (shown as a table), contact and calendar cards, playlists, 3D and media formats, profiles.
+# public.plain-text is listed but reserved by macOS 27, which keeps it (milestone 1 research).
+
+# Plain text and logs
+public.plain-text
+public.utf8-plain-text
+public.utf16-plain-text
+public.utf16-external-plain-text
+com.apple.traditional-mac-plain-text
+com.apple.log
+org.w3.webvtt
+public.patch-file
+
+# Data formats
+public.json
+public.geojson
+public.ndjson
+public.yaml
+public.xml
+com.apple.xml-property-list
+com.apple.ascii-property-list
+com.apple.scripting-definition
+net.daringfireball.markdown
+
+# Scripts
+public.shell-script
+public.bash-script
+public.zsh-script
+public.csh-script
+public.tcsh-script
+public.ksh-script
+public.python-script
+public.ruby-script
+public.perl-script
+public.php-script
+com.netscape.javascript-source
+com.apple.applescript.text
+
+# Source code
+public.c-source
+public.c-header
+public.c-source.preprocessed
+public.c-plus-plus-source
+public.c-plus-plus-header
+public.c-plus-plus-inline-header
+public.c-plus-plus-source.preprocessed
+public.objective-c-source
+public.objective-c-source.preprocessed
+public.objective-c-plus-plus-source
+public.objective-c-plus-plus-source.preprocessed
+public.swift-source
+public.swift-interface
+com.sun.java-source
+public.css
+public.make-source
+public.assembly-source
+public.ada-source
+public.pascal-source
+public.dylan-source
+public.fortran-source
+public.fortran-77-source
+public.fortran-90-source
+public.fortran-95-source
+public.lex-source
+public.yacc-source
+public.mig-source
+com.apple.rez-source
+com.apple.iig-source
+com.apple.symbol-export

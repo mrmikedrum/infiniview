@@ -19,6 +19,9 @@ utf16be.txt	text:utf16BE
 latin1.txt	text:latin1
 ansi-colors.log	text:utf8
 rtf-in-txt.txt	rtf
+utf16le-noext	text:utf16LE
+latin1-noext	text:latin1
+rtf-noext	rtf
 styled.md	text:utf8
 empty	text:utf8
 blob.bin	binary

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIdentifier</key><string>com.mdrum.infiniview.quick-action</string>
+	<key>CFBundleName</key><string>AlwaysPreviewAsText</string>
+	<key>CFBundleDisplayName</key><string>Always Preview as Text</string>
+	<key>CFBundleExecutable</key><string>QuickActionExtension</string>
+	<key>CFBundlePackageType</key><string>XPC!</string>
+	<key>CFBundleShortVersionString</key><string>__VERSION__</string>
+	<key>CFBundleVersion</key><string>__BUILD__</string>
+	__PLATFORM_KEYS__
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionPointIdentifier</key><string>com.apple.ui-services</string>
+		<key>NSExtensionPrincipalClass</key><string>ActionViewController</string>
+		<key>NSExtensionAttributes</key>
+		<dict>
+			<key>NSExtensionServiceRoleType</key><string>NSExtensionServiceRoleTypeEditor</string>
+			<key>NSExtensionServiceAllowsFinderPreviewItem</key><true/>
+			<key>NSExtensionServiceAllowsTouchBarItem</key><false/>
+			<key>NSExtensionServiceFinderPreviewIconName</key><string>NSActionTemplate</string>
+			<key>NSExtensionActivationRule</key>
+			<string>SUBQUERY(extensionItems, $item, SUBQUERY($item.attachments, $a, ANY $a.registeredTypeIdentifiers UTI-CONFORMS-TO "public.data").@count == 1).@count == 1</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

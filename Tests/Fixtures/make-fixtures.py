@@ -48,6 +48,11 @@ write("latin1.txt", "Latin-1 café naïve © 2026\n".encode("latin-1"), "text:la
 write("ansi-colors.log", "\x1b[32mINFO\x1b[0m started\n\x1b[31mERROR\x1b[0m failed\n", "text:utf8")
 # RTF content behind a misleading extension
 write("rtf-in-txt.txt", r"{\rtf1\ansi\deff0 {\fonttbl {\f0 Helvetica;}}\f0\fs28 Hello {\b bold} world.\par}", "rtf")
+# The same without an extension: macOS 27 keeps .txt (public.plain-text) for its own preview,
+# so these are the ones that reach Infiniview there.
+write("utf16le-noext", b"\xff\xfe" + "UTF-16 without an extension\n".encode("utf-16-le"), "text:utf16LE")
+write("latin1-noext", "Latin-1 caf\u00e9 without an extension\n".encode("latin-1"), "text:latin1")
+write("rtf-noext", r"{\rtf1\ansi\deff0 {\fonttbl {\f0 Times;}}\f0\fs32 Rich {\i text} without an extension.\par}", "rtf")
 # Markdown for Styled Source
 write("styled.md", "# Title\n\nSome **bold**, *italic* and `code` with a [link](https://example.com).\n\n"
       "- item\n> quote\n\n```python\nprint('hi')\n```\n", "text:utf8")
