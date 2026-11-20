@@ -1,0 +1,8 @@
+{
+  "name": "infiniview-highlighter-spike",
+  "private": true,
+  "license": "MIT",
+  "scripts": { "build": "esbuild entry.js --bundle --format=iife --minify --target=safari17 --outfile=../build/highlighter.js" },
+  "dependencies": { "vscode-oniguruma": "2.0.1", "vscode-textmate": "9.3.2" },
+  "devDependencies": { "esbuild": "0.28.2" }
+}
