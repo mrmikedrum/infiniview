@@ -97,6 +97,8 @@ for i in {1..10}; do
   sleep 1
   (( $(pluginkit -m -p com.apple.quicklook.preview | grep -c com.mdrum.infiniview) == 2 )) && break
 done
+# Finder lists a new Quick Action only once it is turned on.
+pluginkit -e use -i com.mdrum.infiniview.quick-action
 # Register the Learned Type with the built-in list, and the Folder Check helper (the app does both on
 # every launch too).
 $DEST/Contents/MacOS/Infiniview --register
