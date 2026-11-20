@@ -17,6 +17,10 @@ public final class PreviewController {
     private var content: PreviewContent?
     private var fileName = ""
     private var lineIndex = LineIndex("")
+    private var archiveBrowser: ArchiveBrowser?
+    /// Highlight the first screen before the Preview appears, so it doesn't flash plain. Off inside
+    /// an archive's browser, where a click should show the file at once and colour follows.
+    public var highlightsBeforeShowing = true
     /// Bumped on every render; background work for an older render stops.
     private var generation = 0
 
@@ -45,6 +49,7 @@ public final class PreviewController {
             throw error
         }
         if case .text(let doc) = content { lineIndex = LineIndex(doc.text) }
+        archiveBrowser = nil
         render()
         if SharedSettings().debugLog {
             let ms = Double(DispatchTime.now().uptimeNanoseconds - start) / 1e6
@@ -52,6 +57,7 @@ public final class PreviewController {
             case .text(let doc): "text\t\(doc.language?.id ?? "plain")\t\(doc.shownBytes)/\(doc.totalBytes)"
             case .rtf: "rtf\t-\t-"
             case .card(let card): "card\t\(card.kind)\t-"
+            case .archive(let listing, _): "archive\t\(listing.format.description)\t\(listing.entries.count) entries"
             case nil: "none\t-\t-"
             }
             Self.debugLog("\(fileName)\t\(kind)\t\(String(format: "%.1f", ms))ms\t\(view.isDark ? "dark" : "light")")
@@ -71,13 +77,34 @@ public final class PreviewController {
 
     func render() {
         generation += 1
+        if case .archive(let listing, let url) = content {
+            renderArchive(listing, url)
+            return
+        }
+        view.showCustom(nil)
         switch content {
         case .text(let doc): renderText(doc)
         case .rtf(let rtf): renderRTF(rtf)
         case .card(let card): renderCard(card)
-        case nil: break
+        case .archive, nil: break
         }
     }
+
+    // MARK: - Archives
+
+    /// The browser keeps its own state (selection, layout) across appearance and size changes.
+    private func renderArchive(_ listing: ArchiveListing, _ url: URL) {
+        if archiveBrowser == nil { archiveBrowser = ArchiveBrowser(listing: listing, archive: url, assets: assets) }
+        view.showCustom(archiveBrowser)
+    }
+
+    /// Starts the highlighting engine in the background, so the first Preview needing it doesn't wait.
+    public func warmUp() {
+        Self.queue.async { [assets, languages] in _ = Self.highlighter(assets: assets, languages: languages) }
+    }
+
+    /// Selects an entry in an archive's browser (for PreviewRender).
+    public func selectArchiveEntry(_ path: String) { archiveBrowser?.select(path: path) }
 
     // MARK: - Text
 
@@ -87,7 +114,7 @@ public final class PreviewController {
         let text = doc.text
         let storage = styler.plain(text)
         let length = storage.length
-        let syncEnd = lineIndex.utf16Offset(afterLines: PreviewLimits.syncHighlightLines)
+        let syncEnd = highlightsBeforeShowing ? lineIndex.utf16Offset(afterLines: PreviewLimits.syncHighlightLines) : 0
         let highlightEnd = min(length, PreviewLimits.maxHighlightedUTF16)
 
         var notes = [String]()
@@ -100,7 +127,7 @@ public final class PreviewController {
             notes.append("Highlighting covers the first \(Self.bytes(PreviewLimits.maxHighlightedUTF16)).")
         }
 
-        if let scope {
+        if let scope, syncEnd > 0 {
             let head = (text as NSString).substring(to: min(syncEnd, highlightEnd))
             let tokens = Self.onHighlighter(assets: assets, languages: languages) { h -> Highlighter.Tokens in
                 h.setTheme(theme)

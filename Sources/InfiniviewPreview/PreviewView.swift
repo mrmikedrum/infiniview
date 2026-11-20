@@ -14,13 +14,18 @@ public final class PreviewView: NSView {
     /// Narrower than this, the Preview is in Finder's Preview Pane (or a small Quick Look Panel)
     /// and uses smaller text.
     public static let compactWidth: CGFloat = 600
+    /// This view's own threshold: 0 for a Preview nested in an archive browser, which uses the
+    /// Quick Look Panel's text size.
+    public var compactWidth = PreviewView.compactWidth
     public private(set) var isCompact = false
+    /// A view shown instead of the text (an archive's browser).
+    private var custom: NSView?
     /// Called when the view's width crosses `compactWidth`.
     public var onCompactChange: (() -> Void)?
 
     public override func setFrameSize(_ newSize: NSSize) {
         super.setFrameSize(newSize)
-        let compact = newSize.width > 0 && newSize.width < Self.compactWidth
+        let compact = newSize.width > 0 && newSize.width < compactWidth
         guard compact != isCompact else { return }
         isCompact = compact
         // Not during layout: the handler restyles the text.
@@ -77,6 +82,23 @@ public final class PreviewView: NSView {
     }
 
     required init?(coder: NSCoder) { fatalError("not used") }
+
+    /// Shows `view` filling the Preview in place of the text, or the text again for nil.
+    public func showCustom(_ view: NSView?) {
+        guard view !== custom else { return }
+        custom?.removeFromSuperview()
+        custom = view
+        stack.isHidden = view != nil
+        guard let view else { return }
+        view.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(view)
+        NSLayoutConstraint.activate([
+            view.leadingAnchor.constraint(equalTo: leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: trailingAnchor),
+            view.topAnchor.constraint(equalTo: topAnchor),
+            view.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+    }
 
     /// Soft wrap (text) or horizontal scrolling (hex dump).
     public func setWraps(_ wraps: Bool) {

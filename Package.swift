@@ -11,7 +11,9 @@ let package = Package(
     platforms: [.macOS(.v15)],
     targets: [
         // Pure logic: classification, language detection, Styled Source, lists, Fallback Card.
-        .target(name: "InfiniviewCore"),
+        .target(name: "InfiniviewCore", dependencies: ["CBzip2"], linkerSettings: [.linkedLibrary("z")]),
+        // libbz2, which ships with macOS, for bzip2 archives.
+        .systemLibrary(name: "CBzip2"),
         // The Preview itself (AppKit + JavaScriptCore), shared by both preview extensions.
         .target(name: "InfiniviewPreview", dependencies: ["InfiniviewCore"], swiftSettings: appExtension),
         .executableTarget(name: "PreviewExtension", dependencies: ["InfiniviewPreview"],

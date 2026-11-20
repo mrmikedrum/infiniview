@@ -14,7 +14,7 @@ Infiniview makes Quick Look show the contents of every human-readable file in Fi
 - Rendering documents (HTML as a web page, Markdown as formatted output). Infiniview shows source.
 - Previews for media or other types macOS already handles well.
 - Watching folders for new files, or searching the disk, to learn extensions (see [ADR-0005](adr/0005-learn-extensions-by-folder-check.md)).
-- Format-specific views for binaries (archive listings, `.class` summaries) and claiming named binary types such as `.class`, `.jar`, `.gz`.
+- Format-specific views for binaries other than archives (`.class` summaries, say), and claiming named binary types such as `.class`.
 - Notarized downloadable releases.
 
 ## Platform and distribution
@@ -32,6 +32,7 @@ Infiniview makes Quick Look show the contents of every human-readable file in Fi
 | `public.data` | Extensionless files, dotfiles (`.gitignore`), names like `Dockerfile`, `CODEOWNERS` | Includes binaries; classified by content |
 | `public.unix-executable` | Executable scripts with no extension | Classified by content |
 | **Learned Extensions** | Extensions that ship in the built-in list, plus ones the user adds | Mechanism in [ADR-0001](adr/0001-coverage-via-learned-type.md) |
+| Archive types | zip, jar, war, tar, gzip, bzip2, xz, tarred or not | Shown in the **Archive Browser**; see [ADR-0006](adr/0006-archives-with-built-in-readers.md) |
 | **Takeover** (on by default) | Types macOS previews as plain text: source code, JSON, YAML, XML, shell, Markdown, and similar | Switchable; when off, those files get macOS's own preview |
 
 Always left to macOS, Takeover or not: HTML, SVG, `.rtf`, and media and document types macOS renders visually.
@@ -70,6 +71,16 @@ Shown identically in the **Quick Look Panel** and the **Preview Pane**.
 
 For files that aren't text: what kind of file it is (in the style of `file(1)`), size, dates, and a hex dump of the first few KB.
 
+## Archive Browser
+
+See [ADR-0006](adr/0006-archives-with-built-in-readers.md).
+
+- A header names the format and counts files, folders and unpacked size, and says when the listing stopped early (20,000 entries, 2 seconds, or a damaged archive).
+- The tree lists folders first, then files in Finder's order, with icons and sizes. A lone top folder opens by itself. `__MACOSX/` and `._name` entries are hidden.
+- In the Quick Look Panel, selecting an entry shows its Preview beside the tree: text (with highlighting and Styled Source), RTF and the Fallback Card through the usual Preview, images and PDFs drawn directly, and a nested archive as its own tree. A README at the top is selected to start with.
+- In the Preview Pane (narrower than 600 points), only the tree.
+- Links, folders, encrypted entries and entries Infiniview can't unpack get a short note instead.
+
 ## Learning an extension
 
 Extensions are learned automatically; the user shouldn't have to think about them. See [ADR-0005](adr/0005-learn-extensions-by-folder-check.md).
@@ -104,7 +115,8 @@ Day-to-day use happens in Finder.
 2. **Prove highlighting speed**: TextMate grammar highlighting in a sandboxed extension, measured on large files to set the limits.
 3. **MVP**: classification, text Preview with highlighting and Styled Source, RTF, Fallback Card, the Quick Action, the settings window, and the built-in extension list.
 4. **Folder Check**: a launch agent helper, started on demand when a preview extension asks for a check.
-5. **Later**: Thumbnail (possibly doubling as a Folder Check trigger when a folder opens), a Finder Sync trigger, named binary types, archive listings.
+5. **Archive Browser**: zip and tar, plain or compressed, with their own readers.
+6. **Later**: Thumbnail (possibly doubling as a Folder Check trigger when a folder opens), a Finder Sync trigger, named binary types, more archive formats through libarchive.
 
 ## Testing
 

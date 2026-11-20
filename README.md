@@ -23,6 +23,7 @@ Other Quick Look apps that claim the same files (PreviewText, QLOmni, Syntax Hig
 ## Use
 
 - **Quick Look** (space) and Finder's **Preview Pane** show the Preview.
+- **Archives** (zip, jar, tar, and gzip, bzip2 or xz files, tarred or not) show a tree of what's inside. In the Quick Look Panel, click a file in the tree to preview it beside the tree; the Preview Pane shows the tree only.
 - **Learning extensions** happens by itself. Whenever Infiniview shows a Preview, a background helper checks the rest of that folder (up to 1,000 files, not subfolders) and learns the extensions of text files macOS doesn't recognise, so their Preview works the next time. The very first file with a new extension can still get macOS's own preview until something else in its folder has been previewed. A learned extension also makes those files open in your default text editor.
 - **Learning by hand**: right-click a file → Quick Actions → **Always Preview as Text**. From then on every file with that extension previews as text, straight away. This works for extensions macOS doesn't know. Ones it already knows keep their own preview, and Takeover covers macOS's own text types.
 - **Settings** (open the Infiniview app):

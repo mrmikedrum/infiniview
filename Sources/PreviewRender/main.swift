@@ -1,6 +1,7 @@
 // Development tool: renders a file through the Preview code (in-process, not via Quick Look)
 // to a PNG, for checking how the Preview looks.
-//   swift run PreviewRender <file> <out.png> [light|dark] [width] [height]
+//   swift run PreviewRender <file> <out.png> [light|dark] [width] [height] [entry]
+// For an archive, [entry] is the path inside it to select.
 import AppKit
 import InfiniviewPreview
 
@@ -23,6 +24,11 @@ MainActor.assumeIsolated {
     window.contentView = controller.view
     controller.view.wantsLayer = true
     try! controller.load(URL(fileURLWithPath: args[1]))
+    if args.count > 6 {
+        RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+        controller.selectArchiveEntry(args[6])
+        RunLoop.main.run(until: Date().addingTimeInterval(3)) // unpacking
+    }
     // Let background highlighting and layout finish.
     RunLoop.main.run(until: Date().addingTimeInterval(1.5))
     controller.view.layoutSubtreeIfNeeded()

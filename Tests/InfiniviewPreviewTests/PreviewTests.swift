@@ -25,6 +25,12 @@ let languages = try! LanguageIndex(json: Data(contentsOf: assets.appendingPathCo
         #expect(!card.hexDump.isEmpty)
     }
 
+    @Test func archivesGetTheirListing() throws {
+        guard case .archive(let listing, _) = try load("bundle.tar.gz") else { Issue.record("not an archive"); return }
+        #expect(listing.format == .tar(.gzip) && listing.entries.count == 8)
+        guard case .archive = try load("notes.txt.gz") else { Issue.record("not an archive"); return }
+    }
+
     @Test func textGetsItsLanguage() throws {
         guard case .text(let doc) = try load("styled.md") else { Issue.record("not text"); return }
         #expect(doc.isMarkdown)
